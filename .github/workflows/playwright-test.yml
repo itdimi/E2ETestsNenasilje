@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Playwright Test
 on:
   schedule:
     - cron: '0 6 * * *'
@@ -13,8 +13,10 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
+    - name: Setup Pages
+      uses: actions/configure-pages@v5
     - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: lts/*
     - name: Install dependencies
@@ -29,5 +31,8 @@ jobs:
       if: ${{ !cancelled() }}
       with:
         name: playwright-report
-        path: playwright-report/
+        path: |
+          **/*-snapshots/**
+          test-results/
+          playwright-report/
         retention-days: 30
