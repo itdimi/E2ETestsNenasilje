@@ -24,7 +24,7 @@ class EmailReporter implements Reporter {
       to: 'dimitrije@nenasilje.org',
       subject: 'Alert: Playwright Test Run Failed',
       text: 'One or more Playwright tests failed in the latest run. Please check the CI pipeline or local HTML reports.',
-      html: '<p>🚨 <strong>Alert:</strong> One or more Playwright tests failed in the latest run.</p><p>Please check your CI pipeline or local HTML reports for details.</p>',
+      html: '<p>🚨 <strong>Alert:</strong> One or more Playwright tests failed in the latest run.</p><p>Please check your CI pipeline or local HTML reports for details.</p> Checkout <a href="https://itdimi.github.io/E2ETestsNenasilje/">REPORT</a>',
     };
 
     try {
