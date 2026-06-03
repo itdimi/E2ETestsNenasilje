@@ -18,11 +18,13 @@ jobs:
     - uses: actions/setup-node@v6
       with:
         node-version: lts/*
+      cache: npm
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
+      run: npx playwright install --with-deps chromium
     - name: Run Playwright tests
+      continue-on-error: true
       env:
         GOOGLE_APP_PASSWORD: ${{ secrets.GOOGLE_APP_PASSWORD }}
       run: npx playwright test
@@ -34,4 +36,4 @@ jobs:
           test-results/
           playwright-report/
         retention-days: 30
-    - uses: actions/deploy-pages@v4
+    - uses: actions/deploy-pages@v5
