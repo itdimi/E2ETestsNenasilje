@@ -1,4 +1,7 @@
 name: Playwright Test
+permissions:
+  id-token: write
+  contents: read
 on:
   schedule:
     - cron: '0 6 * * *'
