@@ -54,6 +54,7 @@ jobs:
           playwright-report/
         retention-days: 30
     - uses: actions/deploy-pages@v5
+
   update:
     timeout-minutes: 60
     runs-on: ubuntu-latest
