@@ -69,4 +69,4 @@ jobs:
       uses: actions/cache/save@v5
       with:
         path: tests/**/*-snapshots
-        key: snapshots-${{ ${{ github.run_id }} }}
+        key: snapshots-${{ github.run_id }}
