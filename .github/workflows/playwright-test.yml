@@ -24,15 +24,11 @@ jobs:
       with:
         node-version: lts/*
         cache: npm
-    - name: Cache Playwright snapshots
-      uses: actions/cache@v5
+    - name: Restore Playwright snapshots
+      uses: actions/cache/restore@v5
       with:
-        path: |
-          tests/**/*.snapshots
-          tests/**/*-snapshots
-        key: snapshots-${{ runner.os }}-${{ github.ref_name }}
-        restore-keys: |
-          snapshots-${{ runner.os }}-
+        path: tests/**/*-snapshots
+        restore-keys: snapshots-
     - name: Install dependencies
       run: npm ci
     - name: Install Playwright Browsers
@@ -57,7 +53,6 @@ jobs:
   pw-update:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    needs: pw-test
     steps:
     - uses: actions/checkout@v6
     - uses: actions/setup-node@v6
@@ -73,12 +68,5 @@ jobs:
     - name: Save Playwright snapshots
       uses: actions/cache/save@v5
       with:
-        path: |
-          tests/**/*.snapshots
-          tests/**/*-snapshots
-        key: snapshots-${{ runner.os }}-${{ github.ref_name }}
-
-
-
-
-
+        path: tests/**/*-snapshots
+        key: snapshots-${{ ${{ github.run_id }} }}
