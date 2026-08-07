@@ -22,7 +22,7 @@ class EmailReporter implements Reporter {
     var mailOptions = {
       from: 'dimitrije.cna@gmail.com', //'"Playwright Automation" <automation@nenasilje.org>',
       to: 'dimitrije@nenasilje.org',
-      subject: 'Sajt nenasilje.org ima potencijalni problem',
+      subject: 'Proveravač Sajtova: nenasilje.org ima potencijalni problem',
       text: 'Jedan ili više testova sajta nisu uspešno završeni!',
       html: '<p>🚨 <strong>Pažnja:</strong> </p>Jedan ili više testova sajta nisu uspešno završeni! Proverite <a href="https://itdimi.github.io/E2ETestsNenasilje/">IZVEŠTAJ</a>',
     };
