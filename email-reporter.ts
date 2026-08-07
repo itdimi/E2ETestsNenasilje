@@ -22,9 +22,9 @@ class EmailReporter implements Reporter {
     const mailOptions = {
       from: 'dimitrije.cna@gmail.com', //'"Playwright Automation" <automation@nenasilje.org>',
       to: 'dimitrije@nenasilje.org',
-      subject: 'Alert: Playwright Test Run Failed',
-      text: 'One or more Playwright tests failed in the latest run. Please check the CI pipeline or local HTML reports.',
-      html: '<p>🚨 <strong>Alert:</strong> One or more Playwright tests failed in the latest run.</p><p>Please check your CI pipeline or local HTML reports for details.</p> Checkout <a href="https://itdimi.github.io/E2ETestsNenasilje/">REPORT</a>',
+      subject: 'Sajt nenasilje.org ima potencijalni problem',
+      text: 'Jedan ili više testova sajta nisu uspešno završeni!',
+      html: '<p>🚨 <strong>Pažnja:</strong> </p>Jedan ili više testova sajta nisu uspešno završeni! Proverite <a href="https://itdimi.github.io/E2ETestsNenasilje/">IZVEŠTAJ</a>',
     };
 
     try {
