@@ -19,19 +19,21 @@ class EmailReporter implements Reporter {
         },
     });
 
-    const mailOptions = {
+    var mailOptions = {
       from: 'dimitrije.cna@gmail.com', //'"Playwright Automation" <automation@nenasilje.org>',
       to: 'dimitrije@nenasilje.org',
       subject: 'Sajt nenasilje.org ima potencijalni problem',
       text: 'Jedan ili više testova sajta nisu uspešno završeni!',
       html: '<p>🚨 <strong>Pažnja:</strong> </p>Jedan ili više testova sajta nisu uspešno završeni! Proverite <a href="https://itdimi.github.io/E2ETestsNenasilje/">IZVEŠTAJ</a>',
     };
-
-    try {
-      await transporter.sendMail(mailOptions);
-      console.log('Failure alert email sent successfully.');
-    } catch (error) {
-      console.error('Failed to send failure notification email:', error);
+    for (var mail of ['dimitrije@nenasilje.org', 'nenad@nenasilje.org', 'urednici@nenasilje.org']) {
+      mailOptions.to = mail;
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log('Failure alert email sent successfully.');
+      } catch (error) {
+        console.error('Failed to send failure notification email:', error);
+      }
     }
   }
 }
