@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 test('Prirucnik FullPage - https://handbook.nenasilje.org/', async ({ page }) => {
     await page.goto('https://handbook.nenasilje.org/');
     await page.addStyleTag({ content: `.dsm-typing-wrapper { visibility: hidden !important; }` });
