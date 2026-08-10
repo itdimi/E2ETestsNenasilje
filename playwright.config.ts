@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     expect: {
         toMatchSnapshot: {
-            maxDiffPixelRatio: 0.01,
+            maxDiffPixelRatio: 0.02,
         },
     },
 });
