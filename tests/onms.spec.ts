@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 test('ONMS FullPage - https://onms.nenasilje.org/', async ({ page }) => {
     await page.goto('https://onms.nenasilje.org/');
     await page.addStyleTag({ content: `.dsm-typing-wrapper { visibility: hidden !important; }` });
