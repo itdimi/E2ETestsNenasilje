@@ -26,7 +26,11 @@ class EmailReporter implements Reporter {
       text: 'Jedan ili više testova sajta nisu uspešno završeni!',
       html: '<p>🚨 <strong>Pažnja:</strong> </p>Jedan ili više testova sajta nisu uspešno završeni! Proverite <a href="https://itdimi.github.io/E2ETestsNenasilje/">IZVEŠTAJ</a>',
     };
-    for (var mail of ['dimitrije@nenasilje.org', 'nenad@nenasilje.org', 'urednici@nenasilje.org']) {
+    for (var mail of [
+      'dimitrije@nenasilje.org', 
+      //'nenad@nenasilje.org', 
+      //'urednici@nenasilje.org'
+    ]) {
       mailOptions.to = mail;
       try {
         await transporter.sendMail(mailOptions);
