@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 test('Biber FullPage - https://biber.nenasilje.org/', async ({ page }) => {
     await page.goto('https://biber.nenasilje.org/');
     await page.addStyleTag({ content: `.dsm-typing-wrapper { visibility: hidden !important; }` });
