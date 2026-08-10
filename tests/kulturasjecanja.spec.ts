@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 test('Kultura Sjecanja FullPage - https://kulturasjecanja.org/', async ({ page }) => {
     await page.goto('https://kulturasjecanja.org/');
     await page.addStyleTag({ content: `.dsm-typing-wrapper { visibility: hidden !important; }` });
