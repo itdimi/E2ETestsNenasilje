@@ -34,8 +34,8 @@ class EmailReporter implements Reporter {
     };
     for (var mail of [
       'dimitrije@nenasilje.org', 
-      //'nenad@nenasilje.org', 
-      //'urednici@nenasilje.org'
+      'nenad@nenasilje.org', 
+      'urednici@nenasilje.org'
     ]) {
       mailOptions.to = mail;
       try {
