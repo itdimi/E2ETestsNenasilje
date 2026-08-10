@@ -10,7 +10,10 @@ class EmailReporter implements Reporter {
   }
 
   private async sendFailureEmail() {
-    console.log(`Pass: ${process.env.GOOGLE_APP_PASSWORD}`);
+    if (!process.env.GOOGLE_APP_PASSWORD) {
+      console.error('GOOGLE_APP_PASSWORD is not set - skipping failure notification email.');
+      return;
+    }
     const transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
@@ -18,6 +21,9 @@ class EmailReporter implements Reporter {
             pass: process.env.GOOGLE_APP_PASSWORD,
         },
     });
+
+    // Swallow low-level SMTP errors so a mail failure can never crash the run.
+    transporter.on('error', (err) => console.error('SMTP transport error:', err.message));
 
     var mailOptions = {
       from: 'dimitrije.cna@gmail.com', //'"Playwright Automation" <automation@nenasilje.org>',

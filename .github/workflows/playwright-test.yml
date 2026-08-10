@@ -1,73 +1,97 @@
-name: Playwright Test
+name: Playwright screenshot check
+
+on:
+  workflow_dispatch:          # manual: refresh baselines after a website update - no email
+  schedule:
+    - cron: '0 9 * * *'      # daily 09:00 UTC: compare today vs yesterday - email on unexpected change
+
 permissions:
   contents: read
   pages: write
   id-token: write
-on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason for running manually'
-        required: false
-        default: 'Manual test run'
-  schedule:
-    - cron: '0 9 * * *'
+
+concurrency:
+  group: playwright-check
+  cancel-in-progress: false
 
 jobs:
-  pw-test:
-    timeout-minutes: 60
+  check:
     runs-on: ubuntu-latest
-    steps:
-    - uses: actions/configure-pages@v6
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: lts/*
-        cache: npm
-    - name: Restore Playwright snapshots
-      uses: actions/cache/restore@v5
-      with:
-        path: tests/**/*-snapshots
-        key: not-going-to-hit-this
-        restore-keys: snapshots-
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium
-    - name: Run Playwright tests
-      continue-on-error: true
-      env:
-        GOOGLE_APP_PASSWORD: ${{ secrets.GOOGLE_APP_PASSWORD }}
-      run: npx playwright test
-    - uses: actions/upload-pages-artifact@v5
-      with:
-        path: playwright-report/
-    - uses: actions/upload-artifact@v7
-      with:
-        name: playwright-report
-        path: |
-          **/*-snapshots/**
-          test-results/
-          playwright-report/
-        retention-days: 30
-    - uses: actions/deploy-pages@v5
-  pw-update:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
-    - uses: actions/setup-node@v6
-      with:
-        node-version: lts/*
-        cache: npm
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps chromium
-    - name: Run Playwright Update Snapshots
-      run: npx playwright test --update-snapshots
-    - name: Save Playwright snapshots
-      uses: actions/cache/save@v5
-      with:
-        path: tests/**/*-snapshots
-        key: snapshots-${{ github.run_id }}
+      - uses: actions/checkout@v7
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v22
+
+      - name: Nix build cache
+        uses: DeterminateSystems/magic-nix-cache-action@v14
+
+      # Snapshot baselines are cached per day, so a scheduled run compares
+      # today's site against yesterday's snapshots.
+      - name: Dates
+        id: date
+        run: |
+          echo "yesterday=$(date -d yesterday +%F)" >> "$GITHUB_OUTPUT"
+          echo "today=$(date +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore yesterday's snapshots (baseline)
+        id: baseline
+        uses: actions/cache/restore@v6
+        with:
+          path: tests/**/*-snapshots
+          key: snapshots-${{ steps.date.outputs.yesterday }}
+          restore-keys: snapshots-
+
+      # - schedule: strict comparison (fails on any visual change; email via reporter),
+      # - manual (workflow_dispatch): refresh the baseline after a website update,
+      #   so no failure and no email,
+      # - first run with no cached baseline: capture today's as the baseline.
+      - name: Run Playwright screenshot tests (nix)
+        env:
+          GOOGLE_APP_PASSWORD: ${{ secrets.GOOGLE_APP_PASSWORD }}
+          SEND_FAILURE_EMAIL: ${{ github.event_name == 'schedule' && '1' || '' }}
+        run: |
+          BASELINE_DIR=$(find tests -type d -name '*-snapshots' -print -quit 2>/dev/null)
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" || -z "$BASELINE_DIR" ]]; then
+            echo "Refreshing snapshot baseline (manual run or first run)."
+            nix develop -c npx playwright test --update-snapshots
+          else
+            echo "Comparing today's site against yesterday's snapshots."
+            nix develop -c npx playwright test
+          fi
+
+      # Save today's screenshots as tomorrow's baseline. NOT on a failed
+      # scheduled comparison: if the site is broken we keep yesterday's
+      # baseline so tomorrow alerts again.
+      - name: Save today's snapshots as new baseline
+        if: github.event_name != 'schedule' || success()
+        continue-on-error: true   # re-running the same day hits an existing cache key
+        uses: actions/cache/save@v6
+        with:
+          path: tests/**/*-snapshots
+          key: snapshots-${{ steps.date.outputs.today }}
+
+      - name: Configure GitHub Pages
+        if: always()
+        uses: actions/configure-pages@v6
+
+      - name: Upload report as Pages artifact
+        if: always()
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: playwright-report/
+
+      - name: Deploy report to GitHub Pages
+        if: always()
+        uses: actions/deploy-pages@v5
+
+      - name: Upload test artifacts (debug)
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
