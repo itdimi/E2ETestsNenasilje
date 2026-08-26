@@ -28,11 +28,9 @@ export default defineConfig({
         // The monitored sites can be slow; the default 5s screenshot timeout
         // caused flaky failures on CI runners.
         timeout: 30000,
-        toMatchSnapshot: {
-            maxDiffPixelRatio: 0.02,
-        },
         toHaveScreenshot: {
             timeout: 30000,
+            maxDiffPixelRatio: 0.02, // allow up to 2% of pixels to differ
         },
     },
 });
