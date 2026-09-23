@@ -66,7 +66,7 @@ jobs:
       # baseline so tomorrow alerts again.
       - name: Save today's snapshots as new baseline
         # if: github.event_name != 'schedule' || success()
-        continue-on-error: true   # re-running the same day hits an existing cache key
+        # continue-on-error: true   # re-running the same day hits an existing cache key
         uses: actions/cache/save@v6
         with:
           path: tests/**/*-snapshots
