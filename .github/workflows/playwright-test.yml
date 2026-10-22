@@ -61,12 +61,10 @@ jobs:
             nix develop -c npx playwright test
           fi
 
-      # Save today's screenshots as tomorrow's baseline. NOT on a failed
-      # scheduled comparison: if the site is broken we keep yesterday's
-      # baseline so tomorrow alerts again.
+      # Always save today's snapshots, even if the Playwright tests fail.
       - name: Save today's snapshots as new baseline
-        # if: github.event_name != 'schedule' || success()
-        # continue-on-error: true   # re-running the same day hits an existing cache key
+        if: always()
+        continue-on-error: true
         uses: actions/cache/save@v6
         with:
           path: tests/**/*-snapshots
