@@ -52,15 +52,14 @@ jobs:
           GOOGLE_APP_PASSWORD: ${{ secrets.GOOGLE_APP_PASSWORD }}
           SEND_FAILURE_EMAIL: ${{ github.event_name == 'schedule' && '1' || '' }}
         run: |
-          BASELINE_DIR=$(find tests -type d -name '*-snapshots' -print -quit 2>/dev/null)
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" || -z "$BASELINE_DIR" ]]; then
-            echo "Refreshing snapshot baseline (manual run or first run)."
-            nix develop -c npx playwright test --update-snapshots
-          else
-            echo "Comparing today's site against yesterday's snapshots."
-            nix develop -c npx playwright test
-          fi
+          echo "Comparing today's site against yesterday's snapshots."
+          nix develop -c npx playwright test
 
+      - name: Make today's snapshots as new baseline
+        if: always()
+        run: |
+          echo "Saving today's site as new baseline"
+          nix develop -c npx playwright test --update-snapshots
       # Always save today's snapshots, even if the Playwright tests fail.
       - name: Save today's snapshots as new baseline
         if: always()
