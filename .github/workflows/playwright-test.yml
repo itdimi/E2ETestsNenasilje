@@ -20,21 +20,15 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v7
-
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v22
-
       - name: Nix build cache
         uses: DeterminateSystems/magic-nix-cache-action@v14
-
-      # Snapshot baselines are cached per day, so a scheduled run compares
-      # today's site against yesterday's snapshots.
       - name: Dates
         id: date
         run: |
           echo "yesterday=$(date -d yesterday +%F)" >> "$GITHUB_OUTPUT"
           echo "today=$(date +%F)" >> "$GITHUB_OUTPUT"
-
       - name: Restore yesterday's snapshots (baseline)
         id: baseline
         uses: actions/cache/restore@v6
@@ -42,11 +36,6 @@ jobs:
           path: tests/**/*-snapshots
           key: snapshots-${{ steps.date.outputs.yesterday }}
           restore-keys: snapshots-
-
-      # - schedule: strict comparison (fails on any visual change; email via reporter),
-      # - manual (workflow_dispatch): refresh the baseline after a website update,
-      #   so no failure and no email,
-      # - first run with no cached baseline: capture today's as the baseline.
       - name: Run Playwright screenshot tests (nix)
         env:
           GOOGLE_APP_PASSWORD: ${{ secrets.GOOGLE_APP_PASSWORD }}
@@ -54,20 +43,6 @@ jobs:
         run: |
           echo "Comparing today's site against yesterday's snapshots."
           nix develop -c npx playwright test
-
-      - name: Make today's snapshots as new baseline
-        if: always()
-        run: |
-          echo "Saving today's site as new baseline"
-          nix develop -c npx playwright test --update-snapshots
-      # Always save today's snapshots, even if the Playwright tests fail.
-      - name: Save today's snapshots as new baseline
-        if: always()
-        continue-on-error: true
-        uses: actions/cache/save@v6
-        with:
-          path: tests/**/*-snapshots
-          key: snapshots-${{ steps.date.outputs.today }}
 
       - name: Configure GitHub Pages
         if: always()
@@ -90,5 +65,19 @@ jobs:
           name: test-results
           path: |
             test-results/
+      - name: Make today's snapshots as new baseline
+        if: always()
+        run: |
+          echo "Saving today's site as new baseline"
+          nix develop -c npx playwright test --update-snapshots
+      # Always save today's snapshots, even if the Playwright tests fail.
+      - name: Save today's snapshots as new baseline
+        if: always()
+        continue-on-error: true
+        uses: actions/cache/save@v6
+        with:
+          path: tests/**/*-snapshots
+          key: snapshots-${{ steps.date.outputs.today }}
+
             playwright-report/
           retention-days: 30
